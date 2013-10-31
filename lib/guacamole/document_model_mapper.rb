@@ -19,6 +19,7 @@ module Guacamole
     # @return [Array] An array of embedded models
     attr_reader :models_to_embed
     attr_reader :referenced_by_models
+    attr_reader :referenced_models
 
     # Create a new instance of the mapper
     #
@@ -29,8 +30,9 @@ module Guacamole
     def initialize(model_class, identity_map = IdentityMap)
       @model_class          = model_class
       @identity_map         = identity_map
-      @referenced_by_models = []
       @models_to_embed      = []
+      @referenced_by_models = []
+      @referenced_models    = []
     end
 
     # Map a document to a model
@@ -104,6 +106,7 @@ module Guacamole
     end
 
     def references(model_name)
+      @referenced_models << model_name
     end
 
     private
