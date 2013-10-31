@@ -125,4 +125,14 @@ describe Guacamole::DocumentModelMapper do
       expect(subject.models_to_embed).to include :ponies
     end
   end
+
+  describe 'referenced_by' do
+    subject { Guacamole::DocumentModelMapper.new FancyModel }
+
+    it 'should remember which models holding references' do
+      subject.referenced_by :ponies
+
+      expect(subject.referenced_by_models).to include :ponies
+    end
+  end
 end
