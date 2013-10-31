@@ -97,6 +97,12 @@ module Guacamole
       @models_to_embed << model_name
     end
 
+    def referenced_by(model_name)
+    end
+
+    def references(model_name)
+    end
+
     private
 
     def identity_map

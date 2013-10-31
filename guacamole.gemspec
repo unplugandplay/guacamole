@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'hamster', '~> 1.0.1-rc.1'
 
   spec.add_development_dependency 'fabrication', '~> 2.8.1'
+  spec.add_development_dependency 'faker', '~> 1.2.0'
   spec.add_development_dependency 'logging', '~> 1.8.1'
   spec.add_development_dependency 'pry', '~> 0.9.12'
 end
