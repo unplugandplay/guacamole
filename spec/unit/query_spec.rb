@@ -65,12 +65,12 @@ describe Guacamole::Query do
         subject.limit(limit).each {}
       end
 
-       it 'should accept a skip' do
-         expect(connection).to receive(:all)
-           .with(hash_including skip: skip)
+      it 'should accept a skip' do
+        expect(connection).to receive(:all)
+          .with(hash_including skip: skip)
 
-         subject.skip(skip).each {}
-       end
+        subject.skip(skip).each {}
+      end
     end
 
     context 'an example was provided' do
@@ -110,12 +110,12 @@ describe Guacamole::Query do
         subject.limit(limit).each {}
       end
 
-       it 'should accept a skip' do
-         expect(connection).to receive(:by_example)
-           .with(example, hash_including(skip: skip))
+      it 'should accept a skip' do
+        expect(connection).to receive(:by_example)
+          .with(example, hash_including(skip: skip))
 
-         subject.skip(skip).each {}
-       end
+        subject.skip(skip).each {}
+      end
     end
   end
 
