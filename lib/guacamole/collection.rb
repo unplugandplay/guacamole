@@ -140,6 +140,7 @@ module Guacamole
         model
       end
 
+
       # Delete a model from the database
       #
       # @param [String, Model] model_or_key The key of the model or a model
@@ -246,10 +247,39 @@ module Guacamole
       #
       # @api private
       def create_document_from(model)
+
+        # Check for references models: Those needs to be created BEFORE
+        # because we need the key
+        mapper.referenced_models.each do |ref_model_name|
+          ref_collection = "#{ref_model_name.to_s.pluralize.camelcase}Collection".constantize
+
+          ref_model = model.send(ref_model_name)
+          next unless ref_model
+
+          # FIXME: This is not good! What we want here is dirty tracking, but that is not yet ready
+          # and thus we need something to prevent loops
+          ref_collection.save ref_model unless ref_model.persisted?
+        end
+
         document = connection.create_document(model_to_document(model))
 
         model.key = document.key
         model.rev = document.revision
+
+        # Check for referenced_by models. Those needs to be created AFTER we
+        # saved ourself because they need our key
+        mapper.referenced_by_models.each do |ref_model_name|
+          ref_collection = "#{ref_model_name.to_s.pluralize.camelcase}Collection".constantize
+
+          ref_models = model.send(ref_model_name)
+
+          ref_models.each do |ref_model|
+            # FIXME: This is not good! What we want here is dirty tracking, but that is not yet ready
+            # and thus we need something to prevent loops
+            ref_model.send("#{model.class.name.underscore}=", model)
+            ref_collection.save ref_model unless ref_model.persisted?
+          end
+        end
 
         document
       end
