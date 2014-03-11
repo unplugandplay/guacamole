@@ -9,6 +9,24 @@ module Guacamole
   #
   # @note If you plan to bring your own `DocumentModelMapper` please consider using an {Guacamole::IdentityMap}.
   class DocumentModelMapper
+
+
+
+    class ReferencedByAssociationProxy < SimpleDelegator
+      def initialize(ref, model)
+        super "::#{ref.to_s.pluralize.camelcase}Collection".constantize.by_example("#{model.class.name.underscore}_id" => model.key)
+      end
+    end
+
+    class ReferencedAssociationProxy < SimpleDelegator
+      def initialize(ref, key)
+        super "::#{ref.to_s.pluralize.camelcase}Collection".constantize.by_key(key)
+      end
+    end
+
+
+
+
     # The class to map to
     #
     # @return [class] The class to map to
@@ -50,6 +68,16 @@ module Guacamole
 
         model
       end
+
+      referenced_by_models.each do |ref_model_name|
+        model.send("#{ref_model_name}=", ReferencedByAssociationProxy.new(ref_model_name, model))
+      end
+
+      referenced_models.each do |ref_model_name|
+        model.send("#{ref_model_name}=", ReferencedAssociationProxy.new(ref_model_name, document["#{ref_model_name}_id"]))
+      end
+
+      model
     end
 
     # Map a model to a document
@@ -65,6 +93,18 @@ module Guacamole
           embedded_model.attributes.except(:key, :rev)
         end
       end
+
+      referenced_models.each do |ref_model_name|
+        ref_key = [ref_model_name.to_s, "id"].join("_").to_sym
+        ref_model = model.send ref_model_name
+        document[ref_key] = ref_model.key if ref_model
+        document.delete(ref_model_name)
+      end
+
+      referenced_by_models.each do |ref_model_name|
+        document.delete ref_model_name
+      end
+
       document
     end
 
