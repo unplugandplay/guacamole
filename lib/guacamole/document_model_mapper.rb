@@ -10,17 +10,35 @@ module Guacamole
   # @note If you plan to bring your own `DocumentModelMapper` please consider using an {Guacamole::IdentityMap}.
   class DocumentModelMapper
 
+    class AssociationProxy
+      # We undefine most methods to get them sent through to the target.
+      instance_methods.each do |method|
+        undef_method(method) unless
+          method =~ /(^__|^send|^object_id|^respond_to|^tap)/
+      end
 
+      def init(base, target)
+        @base = base
+        @target = target
+      end
 
-    class ReferencedByAssociationProxy < SimpleDelegator
-      def initialize(ref, model)
-        super "::#{ref.to_s.pluralize.camelcase}Collection".constantize.by_example("#{model.class.name.underscore}_id" => model.key)
+      protected
+
+      def method_missing(meth, *args, &blk)
+        @target.call.send meth, *args, &blk
       end
     end
 
-    class ReferencedAssociationProxy < SimpleDelegator
+
+    class ReferencedByAssociationProxy < AssociationProxy
+      def initialize(ref, model)
+        init model, -> { "::#{ref.to_s.pluralize.camelcase}Collection".constantize.by_example("#{model.class.name.underscore}_id" => model.key) }
+      end
+    end
+
+    class ReferencedAssociationProxy < AssociationProxy
       def initialize(ref, key)
-        super "::#{ref.to_s.pluralize.camelcase}Collection".constantize.by_key(key)
+        init nil, -> { "::#{ref.to_s.pluralize.camelcase}Collection".constantize.by_key(key) }
       end
     end
 

@@ -144,5 +144,9 @@ describe Guacamole::DocumentModelMapper do
 
       expect(subject.referenced_models).to include :pony
     end
+
+    it 'should store the referenced models when saving the parent model' do
+      pending "Not yet implemented"
+    end
   end
 end

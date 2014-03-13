@@ -7,5 +7,5 @@ class Author
   autoload :Book, 'fabricators/book'
 
   attribute :name, String
-  attribute :books, Array[Book]
+  attribute :books, Array[Book], coerce: false
 end
