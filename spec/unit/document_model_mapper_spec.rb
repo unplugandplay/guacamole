@@ -6,16 +6,24 @@ require 'guacamole/document_model_mapper'
 class FancyModel
 end
 
+class FakeIdendityMap
+  class << self
+    def fetch(*args, &block)
+      block.call
+    end
+  end
+end
+
 describe Guacamole::DocumentModelMapper do
   subject { Guacamole::DocumentModelMapper }
 
   it 'should be initialized with a model class' do
-    mapper = subject.new FancyModel
+    mapper = subject.new FancyModel, FakeIdendityMap
     expect(mapper.model_class).to eq FancyModel
   end
 
   describe 'document_to_model' do
-    subject { Guacamole::DocumentModelMapper.new FancyModel }
+    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdendityMap }
 
     let(:document)            { double('Ashikawa::Core::Document') }
     let(:document_attributes) { double('Hash') }
@@ -51,7 +59,7 @@ describe Guacamole::DocumentModelMapper do
   end
 
   describe 'model_to_document' do
-    subject { Guacamole::DocumentModelMapper.new FancyModel }
+    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdendityMap }
 
     let(:model)            { double('Model') }
     let(:model_attributes) { double('Hash').as_null_object }
@@ -109,7 +117,7 @@ describe Guacamole::DocumentModelMapper do
   end
 
   describe 'embed' do
-    subject { Guacamole::DocumentModelMapper.new FancyModel }
+    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdendityMap }
 
     it 'should remember which models to embed' do
       subject.embeds :ponies

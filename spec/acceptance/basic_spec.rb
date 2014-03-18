@@ -107,6 +107,19 @@ describe 'CollectionBasics' do
       expect(found_article.comments.first).to be_a Comment
       expect(found_article.comments).to eq article_with_comments.comments
     end
+
+    context 'prevent aliasing effects' do
+      it 'should hold only one object of the same document when getting one document' do
+        this_article = subject.by_key some_article.key
+        that_article = subject.by_key some_article.key
+
+        expect(this_article.object_id).to eq that_article.object_id
+      end
+
+      it 'should only hold one object of the same document when using `by_example`' do
+        pending "Not yet implemented"
+      end
+    end
   end
 
 end

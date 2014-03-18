@@ -6,6 +6,10 @@ require 'guacamole/identity_map'
 describe Guacamole::IdentityMap do
   subject { Guacamole::IdentityMap }
 
+  before do
+    subject.reset
+  end
+
   describe 'Management' do
     it 'should always return an identity_map_instance' do
       expect(subject.identity_map_instance).not_to be_nil
@@ -18,10 +22,19 @@ describe Guacamole::IdentityMap do
       subject.identity_map_instance
     end
 
-    it 'should provide a method to construct a key for a given object' do
-      some_object = double('SomeObject', key: '1337')
+    context 'construct the storage key' do
+      it 'should use the object' do
+        some_object = double('SomeObject', key: '1337')
 
-      expect(subject.key_for(some_object)).to eq [some_object.class, some_object.key]
+        expect(subject.key_for(some_object)).to eq [some_object.class, some_object.key]
+      end
+
+      it 'should construct the map key based on the class and the key' do
+        some_class = double(:SomeClass)
+        some_key   = '1337'
+
+        expect(subject.key_for(some_class.class, some_key)).to eq [some_class.class, some_key]
+      end
     end
   end
 
@@ -50,6 +63,10 @@ describe Guacamole::IdentityMap do
 
       expect(old_map.key?(subject.key_for(cupcake))).to be_false
     end
+
+    it 'should return the stored object' do
+      expect(subject.store(cupcake)).to eq cupcake
+    end
   end
 
   describe 'Retrieve objects' do
@@ -59,14 +76,36 @@ describe Guacamole::IdentityMap do
       subject.store pony
     end
 
-    it 'should load objects from the map' do
-      expect(subject.retrieve(pony)).to eq pony
+    context 'with the object as argument' do
+      it 'should load object from the map' do
+        expect(subject.retrieve(pony)).to eq pony
+      end
+
+      it 'should load the object based on the key_for result' do
+        expect(subject).to receive(:key_for).with(pony, nil)
+
+        subject.retrieve pony
+      end
     end
 
-    it 'should load the object based on the key_for result' do
-      expect(subject).to receive(:key_for).with(pony)
+    context 'with the class and key as argument' do
+      it 'should load the corresponding object from the map' do
+        result = subject.retrieve(pony.class, pony.key)
 
-      subject.retrieve pony
+        expect(result).to eq pony
+      end
+    end
+  end
+
+  describe 'Fetch objects' do
+    let(:rainbow) { double('Rainbow', key: 'all-the-colors') }
+
+    it 'should store and retrieve an object in one step' do
+      result = subject.fetch(rainbow.class, rainbow.key) do
+        rainbow
+      end
+
+      expect(subject.retrieve(rainbow)).to eq result
     end
   end
 end
