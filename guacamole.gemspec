@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'fabrication', '~> 2.8.1'
   spec.add_development_dependency 'logging', '~> 1.8.1'
+  spec.add_development_dependency 'pry', '~> 0.9.12'
 end
