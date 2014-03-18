@@ -51,6 +51,9 @@ module Guacamole
       # You can use this method for low level communication with the collection.
       # Details can be found in the Ashikawa::Core documentation.
       #
+      # @note We're well aware that we return a Ashikawa::Core::Collection here
+      #       but naming it a connection. We think the name `connection` still
+      #       fits better in this context.
       # @see http://rubydoc.info/gems/ashikawa-core/Ashikawa/Core/Collection
       # @return [Ashikawa::Core::Collection]
       def connection
