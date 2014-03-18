@@ -27,14 +27,12 @@ module Guacamole
         object
       end
 
-      def retrieve(object_or_class, key = nil)
-        identity_map_instance[key_for(object_or_class, key)]
+      def retrieve(klass, key)
+        identity_map_instance.get key_for(klass, key)
       end
 
-      def fetch(klass, key, &block)
-        if include?(klass, key)
-          return retrieve klass, key
-        end
+      def retrieve_or_store(klass, key, &block)
+        return retrieve(klass, key) if include?(klass, key)
 
         store block.call
       end
@@ -43,16 +41,12 @@ module Guacamole
         identity_map_instance.key? key_for(object_or_class, key)
       end
 
-      def identity_map_instance
-        @identity_map_instance ||= Hamster.hash
+      def key_for(object_or_class, key = nil)
+        key ? [object_or_class, key] : [object_or_class.class, object_or_class.key]
       end
 
-      def key_for(object_or_class, key = nil)
-        if key
-          [object_or_class, key]
-        else
-          [object_or_class.class, object_or_class.key]
-        end
+      def identity_map_instance
+        @identity_map_instance ||= Hamster.hash
       end
     end
   end

@@ -121,36 +121,20 @@ describe Guacamole::IdentityMap do
       subject.store pony
     end
 
-    context 'with the object as argument' do
-      it 'should load object from the map' do
-        expect(subject.retrieve(pony)).to eq pony
-      end
-
-      it 'should load the object based on the key_for result' do
-        expect(subject).to receive(:key_for).with(pony, nil)
-
-        subject.retrieve pony
-      end
-    end
-
-    context 'with the class and key as argument' do
-      it 'should load the corresponding object from the map' do
-        result = subject.retrieve(pony.class, pony.key)
-
-        expect(result).to eq pony
-      end
+    it 'should load the corresponding object from the map' do
+      expect(subject.retrieve(pony.class, pony.key)).to eq pony
     end
   end
 
-  describe 'Fetch objects' do
+  describe 'Retrieve or store objects' do
     let(:rainbow) { double('Rainbow', key: 'all-the-colors') }
 
     it 'should store and retrieve an object in one step' do
-      result = subject.fetch(rainbow.class, rainbow.key) do
+      result = subject.retrieve_or_store(rainbow.class, rainbow.key) do
         rainbow
       end
 
-      expect(subject.retrieve(rainbow)).to eq result
+      expect(subject.retrieve(rainbow.class, rainbow.key)).to eq result
     end
   end
 end

@@ -38,7 +38,7 @@ module Guacamole
     # @param [Ashikawa::Core::Document] document
     # @return [Model] the resulting model with the given Model class
     def document_to_model(document)
-      identity_map.fetch model_class, document.key do
+      identity_map.retrieve_or_store model_class, document.key do
         model = model_class.new(document.hash)
 
         model.key = document.key

@@ -8,7 +8,7 @@ end
 
 class FakeIdendityMap
   class << self
-    def fetch(*args, &block)
+    def retrieve_or_store(*args, &block)
       block.call
     end
   end
