@@ -117,7 +117,11 @@ describe 'CollectionBasics' do
       end
 
       it 'should only hold one object of the same document when using `by_example`' do
-        pending "Not yet implemented"
+        Fabricate.times(3, :article)
+
+        subject.all.each do |article|
+          expect(article.object_id).to eq subject.by_key(article.key).object_id
+        end
       end
     end
   end
