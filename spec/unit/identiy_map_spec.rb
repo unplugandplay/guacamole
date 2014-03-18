@@ -3,6 +3,51 @@
 require 'spec_helper'
 require 'guacamole/identity_map'
 
+describe Guacamole::IdentityMap::Session do
+  context 'initialization' do
+    subject { Guacamole::IdentityMap::Session }
+
+    let(:an_app) { double('TheApp') }
+
+    it 'should require an app object' do
+      middleware = subject.new an_app
+
+      expect(middleware.instance_variable_get('@app')).to eq an_app
+    end
+  end
+
+  context 'resetting the IdentityMap' do
+    let(:some_app) { double('TheApp').as_null_object }
+    let(:rack_env) { double('RackEnv') }
+    let(:logger)   { double('Logger').as_null_object }
+
+    subject { Guacamole::IdentityMap::Session.new some_app }
+
+    before do
+      allow(Guacamole).to receive(:logger).and_return(logger)
+    end
+
+    it 'should reset the IdentityMap upon `call` and bypass to the @app' do
+      expect(Guacamole::IdentityMap).to receive(:reset)
+
+      subject.call rack_env
+    end
+
+    it 'should pass the request to the @app instance' do
+      expect(some_app).to receive(:call).with(rack_env)
+
+      subject.call rack_env
+    end
+
+    it 'should log the reset action as debug' do
+      expect(logger).to receive(:debug).with('[SESSION] Resetting the IdentityMap')
+
+      subject.call rack_env
+    end
+  end
+
+end
+
 describe Guacamole::IdentityMap do
   subject { Guacamole::IdentityMap }
 

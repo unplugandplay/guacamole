@@ -21,5 +21,9 @@ module Guacamole
         Guacamole::Configuration.load config_file
       end
     end
+
+    initializer 'guacamole.append-identity-map-middleware' do |app|
+      app.middleware.use Guacamole::IdentityMap::Session
+    end
   end
 end

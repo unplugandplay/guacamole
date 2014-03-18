@@ -4,6 +4,19 @@ require 'hamster/hash'
 
 module Guacamole
   class IdentityMap
+    class Session
+      def initialize(app)
+        @app = app
+      end
+
+      def call(env)
+        Guacamole.logger.debug '[SESSION] Resetting the IdentityMap'
+        IdentityMap.reset
+
+        @app.call(env)
+      end
+    end
+
     class << self
       def reset
         @identity_map_instance = nil
