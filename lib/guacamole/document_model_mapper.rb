@@ -7,7 +7,7 @@ module Guacamole
   # If you want to build your own mapper, you have to build at least the
   # `document_to_model` and `model_to_document` methods.
   #
-  # TODO: Hint in the documentation to take care of the IdentityMap in case of subclassing!!!
+  # @note If you plan to bring your own `DocumentModelMapper` please consider using an {Guacamole::IdentityMap}.
   class DocumentModelMapper
     # The class to map to
     #
