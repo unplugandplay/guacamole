@@ -25,6 +25,13 @@ module Guacamole
     def configuration
       @configuration ||= Configuration
     end
+
+    # Just an alias to Configuration#logger
+    #
+    # @return [Configuration#logger]
+    def logger
+      configuration.logger
+    end
   end
 
   # Current configuration

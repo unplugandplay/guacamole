@@ -6,6 +6,8 @@ module Guacamole
   #
   # If you want to build your own mapper, you have to build at least the
   # `document_to_model` and `model_to_document` methods.
+  #
+  # @note If you plan to bring your own `DocumentModelMapper` please consider using an {Guacamole::IdentityMap}.
   class DocumentModelMapper
     # The class to map to
     #
@@ -23,8 +25,9 @@ module Guacamole
     # The Document class is always Ashikawa::Core::Document
     #
     # @param [Class] model_class
-    def initialize(model_class)
-      @model_class = model_class
+    def initialize(model_class, identity_map = IdentityMap)
+      @model_class     = model_class
+      @identity_map    = identity_map
       @models_to_embed = []
     end
 
@@ -35,12 +38,14 @@ module Guacamole
     # @param [Ashikawa::Core::Document] document
     # @return [Model] the resulting model with the given Model class
     def document_to_model(document)
-      model = model_class.new(document.hash)
+      identity_map.retrieve_or_store model_class, document.key do
+        model = model_class.new(document.hash)
 
-      model.key = document.key
-      model.rev = document.revision
+        model.key = document.key
+        model.rev = document.revision
 
-      model
+        model
+      end
     end
 
     # Map a model to a document
@@ -90,6 +95,12 @@ module Guacamole
     #   p blogpost.comments #=> An Array of Comments
     def embeds(model_name)
       @models_to_embed << model_name
+    end
+
+    private
+
+    def identity_map
+      @identity_map
     end
   end
 end

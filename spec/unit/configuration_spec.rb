@@ -21,6 +21,16 @@ describe 'Guacamole.configuration' do
   end
 end
 
+describe 'Guacamole.logger' do
+  subject { Guacamole }
+
+  it 'should just forward to Configuration#logger' do
+    expect(Guacamole.configuration).to receive(:logger)
+
+    subject.logger
+  end
+end
+
 describe Guacamole::Configuration do
   subject { Guacamole::Configuration }
 
