@@ -6,7 +6,7 @@ require 'guacamole/document_model_mapper'
 class FancyModel
 end
 
-class FakeIdendityMap
+class FakeIdentityMap
   class << self
     def retrieve_or_store(*args, &block)
       block.call
@@ -18,12 +18,12 @@ describe Guacamole::DocumentModelMapper do
   subject { Guacamole::DocumentModelMapper }
 
   it 'should be initialized with a model class' do
-    mapper = subject.new FancyModel, FakeIdendityMap
+    mapper = subject.new FancyModel, FakeIdentityMap
     expect(mapper.model_class).to eq FancyModel
   end
 
   describe 'document_to_model' do
-    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdendityMap }
+    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdentityMap }
 
     let(:document)            { double('Ashikawa::Core::Document') }
     let(:document_attributes) { double('Hash') }
@@ -59,7 +59,7 @@ describe Guacamole::DocumentModelMapper do
   end
 
   describe 'model_to_document' do
-    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdendityMap }
+    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdentityMap }
 
     let(:model)            { double('Model') }
     let(:model_attributes) { double('Hash').as_null_object }
@@ -117,7 +117,7 @@ describe Guacamole::DocumentModelMapper do
   end
 
   describe 'embed' do
-    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdendityMap }
+    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdentityMap }
 
     it 'should remember which models to embed' do
       subject.embeds :ponies
@@ -127,7 +127,7 @@ describe Guacamole::DocumentModelMapper do
   end
 
   describe 'referenced_by' do
-    subject { Guacamole::DocumentModelMapper.new FancyModel }
+    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdentityMap }
 
     it 'should remember which models holding references' do
       subject.referenced_by :ponies
@@ -137,7 +137,7 @@ describe Guacamole::DocumentModelMapper do
   end
 
   describe 'references' do
-    subject { Guacamole::DocumentModelMapper.new FancyModel }
+    subject { Guacamole::DocumentModelMapper.new FancyModel, FakeIdentityMap }
 
     it 'should remember which models are referenced' do
       subject.references :pony
