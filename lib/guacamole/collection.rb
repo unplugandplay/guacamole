@@ -16,7 +16,6 @@ module Guacamole
   # the collection. See the `ClassMethods` submodule for details
   module Collection
     extend ActiveSupport::Concern
-
     # The class methods added to the class via the mixin
     #
     # @!method model_to_document(model)
@@ -143,7 +142,6 @@ module Guacamole
         model
       end
 
-
       # Delete a model from the database
       #
       # @param [String, Model] model_or_key The key of the model or a model
@@ -249,47 +247,61 @@ module Guacamole
       # Create a document from a model
       #
       # @api private
+      # @todo Currently we only save the associated models if those never have been
+      #       persisted. In future versions we should add something like `:autosave`
+      #       to always save associated models.
       def create_document_from(model)
 
-        # Check for references models: Those needs to be created BEFORE
-        # because we need the key
-        mapper.referenced_models.each do |ref_model_name|
-          ref_collection = "#{ref_model_name.to_s.pluralize.camelcase}Collection".constantize
-
-          ref_model = model.send(ref_model_name)
-          next unless ref_model
-
-          # FIXME: This is not good! What we want here is dirty tracking, but that is not yet ready
-          # and thus we need something to prevent loops
-          ref_collection.save ref_model unless ref_model.persisted?
-        end
+        create_referenced_models_of model
 
         document = connection.create_document(model_to_document(model))
 
         model.key = document.key
         model.rev = document.revision
 
-        # Check for referenced_by models. Those needs to be created AFTER we
-        # saved ourself because they need our key
+        create_referenced_by_models_of model
+
+        document
+      end
+
+      # Creates all not yet persisted referenced models of `model`
+      #
+      # Referenced models needs to be created before the parent model, because it needs their `key`
+      #
+      # @api private
+      def create_referenced_models_of(model)
+        mapper.referenced_models.each do |ref_model_name|
+          ref_collection = mapper.collection_for ref_model_name
+
+          ref_model = model.send(ref_model_name)
+          next unless ref_model
+
+          ref_collection.save ref_model unless ref_model.persisted?
+        end
+      end
+
+      # Creates all not yet persisted models which are referenced by `model`
+      #
+      # Referenced by models needs to created after the parent model, because they need its `key`
+      #
+      # @api private
+      def create_referenced_by_models_of(model)
         mapper.referenced_by_models.each do |ref_model_name|
-          ref_collection = "#{ref_model_name.to_s.pluralize.camelcase}Collection".constantize
+          ref_collection = mapper.collection_for ref_model_name
 
           ref_models = model.send(ref_model_name)
 
           ref_models.each do |ref_model|
-            # FIXME: This is not good! What we want here is dirty tracking, but that is not yet ready
-            # and thus we need something to prevent loops
-            ref_model.send("#{model.class.name.underscore}=", model)
+            ref_model.send("#{model.class.name.demodulize.underscore}=", model)
             ref_collection.save ref_model unless ref_model.persisted?
           end
         end
-
-        document
       end
 
       # Replace a document in the database with this model
       #
       # @api private
+      # @note This will **not** update associated models (see {#create})
       def replace_document_from(model)
         document = model_to_document(model)
         response = connection.replace(model.key, document)
