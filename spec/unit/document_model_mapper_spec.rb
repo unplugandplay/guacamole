@@ -134,6 +134,25 @@ describe Guacamole::DocumentModelMapper do
 
       expect(subject.referenced_by_models).to include :ponies
     end
+
+    context 'from document to model' do
+      it 'should set a proper ReferencedByAssociationProxy'
+    end
+
+    context 'from model to document' do
+      let(:referenced_by_model_name) { :cupcakes }
+      let(:referenced_by_models)     { [referenced_by_model_name] }
+
+      before do
+        allow(subject).to receive(:referenced_by_models).and_return referenced_by_models
+      end
+
+      it 'should remove the referenced_by attribute from the document' do
+        expect(model_attributes).to receive(:delete).with(referenced_by_model_name)
+
+        subject.model_to_document(model)
+      end
+    end
   end
 
   describe 'references' do
@@ -145,8 +164,33 @@ describe Guacamole::DocumentModelMapper do
       expect(subject.referenced_models).to include :pony
     end
 
-    it 'should store the referenced models when saving the parent model' do
-      pending "Not yet implemented"
+    context 'from document to model' do
+      it 'should set a proper ReferencedAssociationProxy' do
+        pending "Not yet implemented"
+      end
+    end
+
+    context 'from model to document' do
+      let(:referenced_model)       { double('ReferencedModel', key: 23) }
+      let(:referenced_model_name)  { :pony }
+      let(:referenced_models)      { [referenced_model_name] }
+
+      before do
+        allow(subject).to receive(:referenced_models).and_return referenced_models
+        allow(model).to receive(:send).with(referenced_model_name).and_return referenced_model
+      end
+
+      it 'should remove the referenced attribute from the document' do
+        expect(model_attributes).to receive(:delete).with(referenced_model_name)
+
+        subject.model_to_document(model)
+      end
+
+      it 'should add the key of the referenced model to the document' do
+        expect(model_attributes).to receive(:[]=).with(:"#{referenced_model_name}_id", referenced_model.key)
+
+        subject.model_to_document(model)
+      end
     end
   end
 end
