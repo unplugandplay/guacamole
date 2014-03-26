@@ -3,8 +3,7 @@ module Guacamole
     class Proxy
       # We undefine most methods to get them sent through to the target.
       instance_methods.each do |method|
-        undef_method(method) unless
-        method =~ /(^__|^send|^object_id|^respond_to|^tap)/
+        undef_method(method) unless method =~ /(^__|^send|^object_id|^respond_to|^tap)/
       end
 
       def init(base, target)

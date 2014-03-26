@@ -60,11 +60,15 @@ describe Guacamole::DocumentModelMapper do
 
       before do
         allow(subject).to receive(:referenced_by_models).and_return referenced_by_models
-        allow(association_proxy).to receive(:new).with(referenced_by_model_name, model_instance).and_return(association_proxy_instance)
+        allow(association_proxy).to receive(:new)
+          .with(referenced_by_model_name, model_instance)
+          .and_return(association_proxy_instance)
       end
 
       it 'should initialize the association proxy with referenced_by model and its name' do
-        expect(association_proxy).to receive(:new).with(referenced_by_model_name, model_instance).and_return(association_proxy_instance)
+        expect(association_proxy).to receive(:new)
+          .with(referenced_by_model_name, model_instance)
+          .and_return(association_proxy_instance)
 
         subject.document_to_model document
       end
@@ -84,11 +88,15 @@ describe Guacamole::DocumentModelMapper do
 
       before do
         allow(subject).to receive(:referenced_models).and_return referenced_models
-        allow(association_proxy).to receive(:new).with(referenced_model_name, document).and_return(association_proxy_instance)
+        allow(association_proxy).to receive(:new)
+          .with(referenced_model_name, document)
+          .and_return(association_proxy_instance)
       end
 
       it 'should initialize the association proxy with the document and the referenced model name' do
-        expect(association_proxy).to receive(:new).with(referenced_model_name, document).and_return(association_proxy_instance)
+        expect(association_proxy).to receive(:new)
+          .with(referenced_model_name, document)
+          .and_return(association_proxy_instance)
 
         subject.document_to_model document
       end

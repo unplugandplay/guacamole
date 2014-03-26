@@ -22,7 +22,6 @@ class BooksCollection
 end
 
 describe 'Associations' do
-
   let(:author) { Fabricate(:author_with_three_books) }
 
   it 'should load referenced models from the database' do

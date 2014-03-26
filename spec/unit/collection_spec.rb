@@ -339,7 +339,9 @@ describe Guacamole::Collection do
 
         before do
           allow(referenced_model).to receive(:persisted?).and_return(false)
-          allow(mapper).to receive(:collection_for).with(referenced_model_name).and_return(collection_for_referenced_model)
+          allow(mapper).to receive(:collection_for)
+            .with(referenced_model_name)
+            .and_return(collection_for_referenced_model)
           allow(mapper).to receive(:referenced_models).and_return(referenced_models)
           allow(model).to receive(:send).with(referenced_model_name).and_return(referenced_model)
           allow(collection_for_referenced_model).to receive(:save).with(referenced_model)
@@ -375,7 +377,9 @@ describe Guacamole::Collection do
         before do
           allow(referenced_by_model).to receive(:persisted?).and_return(false)
           allow(referenced_by_model).to receive("#{model.class.name.demodulize.underscore}=").with(model)
-          allow(mapper).to receive(:collection_for).with(referenced_by_model_name).and_return(collection_for_referenced_by_model)
+          allow(mapper).to receive(:collection_for)
+            .with(referenced_by_model_name)
+            .and_return(collection_for_referenced_by_model)
           allow(mapper).to receive(:referenced_by_models).and_return(referenced_by_models)
           allow(model).to receive(:send).with(referenced_by_model_name).and_return([referenced_by_model])
           allow(collection_for_referenced_by_model).to receive(:save).with(referenced_by_model)
