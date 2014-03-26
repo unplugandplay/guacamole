@@ -6,7 +6,7 @@ module Guacamole
     class References < Proxy
       def initialize(ref, document)
         init nil,
-          -> { DocumentModelMapper.collection_for(ref).by_key(document["#{ref}_id"]) }
+             -> { DocumentModelMapper.collection_for(ref).by_key(document["#{ref}_id"]) }
       end
     end
   end

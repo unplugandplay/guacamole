@@ -118,7 +118,7 @@ module Guacamole
       end
 
       referenced_by_models.each do |ref_model_name|
-        document.delete ref_model_name
+        document.delete(ref_model_name)
       end
 
       document

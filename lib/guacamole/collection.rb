@@ -251,7 +251,6 @@ module Guacamole
       #       persisted. In future versions we should add something like `:autosave`
       #       to always save associated models.
       def create_document_from(model)
-
         create_referenced_models_of model
 
         document = connection.create_document(model_to_document(model))
@@ -273,7 +272,7 @@ module Guacamole
       # @return [void]
       def create_referenced_models_of(model)
         mapper.referenced_models.each do |ref_model_name|
-          ref_collection = mapper.collection_for ref_model_name
+          ref_collection = mapper.collection_for(ref_model_name)
 
           ref_model = model.send(ref_model_name)
           next unless ref_model
@@ -291,7 +290,7 @@ module Guacamole
       # @return [void]
       def create_referenced_by_models_of(model)
         mapper.referenced_by_models.each do |ref_model_name|
-          ref_collection = mapper.collection_for ref_model_name
+          ref_collection = mapper.collection_for(ref_model_name)
 
           ref_models = model.send(ref_model_name)
 
