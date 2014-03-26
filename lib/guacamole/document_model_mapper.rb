@@ -1,5 +1,8 @@
 # -*- encoding : utf-8 -*-
 
+require 'guacamole/proxies/referenced_by'
+require 'guacamole/proxies/references'
+
 module Guacamole
   # This is the default mapper class to map between Ashikawa::Core::Document and
   # Guacamole::Model instances.
@@ -9,42 +12,6 @@ module Guacamole
   #
   # @note If you plan to bring your own `DocumentModelMapper` please consider using an {Guacamole::IdentityMap}.
   class DocumentModelMapper
-
-    class AssociationProxy
-      # We undefine most methods to get them sent through to the target.
-      instance_methods.each do |method|
-        undef_method(method) unless
-          method =~ /(^__|^send|^object_id|^respond_to|^tap)/
-      end
-
-      def init(base, target)
-        @base = base
-        @target = target
-      end
-
-      protected
-
-      def method_missing(meth, *args, &blk)
-        @target.call.send meth, *args, &blk
-      end
-    end
-
-
-    class ReferencedByAssociationProxy < AssociationProxy
-      def initialize(ref, model)
-        init model, -> { "::#{ref.to_s.pluralize.camelcase}Collection".constantize.by_example("#{model.class.name.underscore}_id" => model.key) }
-      end
-    end
-
-    class ReferencedAssociationProxy < AssociationProxy
-      def initialize(ref, key)
-        init nil, -> { "::#{ref.to_s.pluralize.camelcase}Collection".constantize.by_key(key) }
-      end
-    end
-
-
-
-
     # The class to map to
     #
     # @return [class] The class to map to
@@ -71,6 +38,11 @@ module Guacamole
       @referenced_models    = []
     end
 
+    # TODO: not yet tested and more or less a stub
+    def collection_for(model_name)
+      "#{model_name.to_s.pluralize}Collection".camelcase.constantize
+    end
+
     # Map a document to a model
     #
     # Sets the revision, key and all attributes on the model
@@ -81,21 +53,19 @@ module Guacamole
       identity_map.retrieve_or_store model_class, document.key do
         model = model_class.new(document.to_h)
 
+        referenced_by_models.each do |ref_model_name|
+          model.send("#{ref_model_name}=", Proxies::ReferencedBy.new(ref_model_name, model))
+        end
+
+        referenced_models.each do |ref_model_name|
+          model.send("#{ref_model_name}=", Proxies::References.new(ref_model_name, document))
+        end
+
         model.key = document.key
         model.rev = document.revision
 
         model
       end
-
-      referenced_by_models.each do |ref_model_name|
-        model.send("#{ref_model_name}=", ReferencedByAssociationProxy.new(ref_model_name, model))
-      end
-
-      referenced_models.each do |ref_model_name|
-        model.send("#{ref_model_name}=", ReferencedAssociationProxy.new(ref_model_name, document["#{ref_model_name}_id"]))
-      end
-
-      model
     end
 
     # Map a model to a document
