@@ -207,7 +207,7 @@ describe Guacamole::Collection do
         end
 
         it 'should not update created_at' do
-          expect(model).to receive(:created_at=).never
+          expect(model).not_to receive(:created_at=)
 
           subject.save model
         end
@@ -228,16 +228,16 @@ describe Guacamole::Collection do
         end
 
         it 'should not be used to create the document' do
-          expect(connection).to receive(:create_document).never
+          expect(connection).not_to receive(:create_document)
 
           subject.save model
         end
 
         it 'should not be changed' do
-          expect(model).to receive(:created_at=).never
-          expect(model).to receive(:updated_at=).never
-          expect(model).to receive(:key=).never
-          expect(model).to receive(:rev=).never
+          expect(model).not_to receive(:created_at=)
+          expect(model).not_to receive(:updated_at=)
+          expect(model).not_to receive(:key=)
+          expect(model).not_to receive(:rev=)
 
           subject.save model
         end
@@ -257,14 +257,14 @@ describe Guacamole::Collection do
         let(:model)    { double('Model', key: key).as_null_object }
 
         it 'should not be used to replace the document' do
-          expect(connection).to receive(:replace).never
+          expect(connection).not_to receive(:replace)
 
           subject.save model
         end
 
         it 'should not be changed' do
-          expect(model).to receive(:rev=).never
-          expect(model).to receive(:updated_at=).never
+          expect(model).not_to receive(:rev=)
+          expect(model).not_to receive(:updated_at=)
 
           subject.save model
         end
@@ -355,14 +355,14 @@ describe Guacamole::Collection do
 
         it 'should save the reference only if it is not already persisted' do
           allow(referenced_model).to receive(:persisted?).and_return(true)
-          expect(collection_for_referenced_model).to receive(:save).with(referenced_model).never
+          expect(collection_for_referenced_model).not_to receive(:save).with(referenced_model)
 
           subject.create model
         end
 
         it 'should save the reference only if it is present' do
           allow(model).to receive(:send).with(:some_referenced_model).and_return(nil)
-          expect(collection_for_referenced_model).to receive(:save).with(referenced_model).never
+          expect(collection_for_referenced_model).not_to receive(:save).with(referenced_model)
 
           subject.create model
         end
@@ -393,14 +393,14 @@ describe Guacamole::Collection do
 
         it 'should save the references only if it is not already persisted' do
           allow(referenced_by_model).to receive(:persisted?).and_return(true)
-          expect(collection_for_referenced_by_model).to receive(:save).with(referenced_by_model).never
+          expect(collection_for_referenced_by_model).not_to receive(:save).with(referenced_by_model)
 
           subject.create model
         end
 
         it 'should save the references only if it is present' do
           allow(model).to receive(:send).with(referenced_by_model_name).and_return([])
-          expect(collection_for_referenced_by_model).to receive(:save).with(referenced_by_model).never
+          expect(collection_for_referenced_by_model).not_to receive(:save).with(referenced_by_model)
 
           subject.create model
         end
@@ -421,16 +421,16 @@ describe Guacamole::Collection do
       end
 
       it 'should not be used to create the document' do
-        expect(connection).to receive(:create_document).never
+        expect(connection).not_to receive(:create_document)
 
         subject.create model
       end
 
       it 'should not be changed' do
-        expect(model).to receive(:created_at=).never
-        expect(model).to receive(:updated_at=).never
-        expect(model).to receive(:key=).never
-        expect(model).to receive(:rev=).never
+        expect(model).not_to receive(:created_at=)
+        expect(model).not_to receive(:updated_at=)
+        expect(model).not_to receive(:key=)
+        expect(model).not_to receive(:rev=)
 
         subject.create model
       end
@@ -521,7 +521,7 @@ describe Guacamole::Collection do
       end
 
       it 'should not update created_at' do
-        expect(model).to receive(:created_at=).never
+        expect(model).not_to receive(:created_at=)
 
         subject.replace model
       end
@@ -533,14 +533,14 @@ describe Guacamole::Collection do
       end
 
       it 'should not be used to replace the document' do
-        expect(connection).to receive(:replace).never
+        expect(connection).not_to receive(:replace)
 
         subject.replace model
       end
 
       it 'should not be changed' do
-        expect(model).to receive(:rev=).never
-        expect(model).to receive(:updated_at=).never
+        expect(model).not_to receive(:rev=)
+        expect(model).not_to receive(:updated_at=)
 
         subject.replace model
       end
