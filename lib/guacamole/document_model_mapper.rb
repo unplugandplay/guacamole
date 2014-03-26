@@ -38,12 +38,32 @@ module Guacamole
       @referenced_models    = []
     end
 
-    # TODO: not yet tested and more or less a stub
     class << self
+      # construct the {collection} class for a given model name.
+      #
+      # @example
+      #   collection_class = collection_for(:user)
+      #   collection_class == userscollection # would be true
+      #
+      # @note This is an class level alias for {DocumentModelMapper#collection_for}
+      # @param [symbol, string] model_name the name of the model
+      # @return [class] the {collection} class for the given model name
       def collection_for(model_name)
         "#{model_name.to_s.pluralize}Collection".camelcase.constantize
       end
     end
+
+    # construct the {collection} class for a given model name.
+    #
+    # @example
+    #   collection_class = collection_for(:user)
+    #   collection_class == userscollection # would be true
+    #
+    # @todo As of now this is some kind of placeholder method. As soon as we implement
+    #       the configuration of the mapping (#12) this will change. Still the {DocumentModelMapper}
+    #       seems to be a good place for this functionality.
+    # @param [symbol, string] model_name the name of the model
+    # @return [class] the {collection} class for the given model name
     def collection_for(model_name)
       self.class.collection_for model_name
     end

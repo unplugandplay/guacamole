@@ -269,6 +269,8 @@ module Guacamole
       # Referenced models needs to be created before the parent model, because it needs their `key`
       #
       # @api private
+      # @todo This method should be considered 'work in progress'. We already know we need to change this.
+      # @return [void]
       def create_referenced_models_of(model)
         mapper.referenced_models.each do |ref_model_name|
           ref_collection = mapper.collection_for ref_model_name
@@ -285,6 +287,8 @@ module Guacamole
       # Referenced by models needs to created after the parent model, because they need its `key`
       #
       # @api private
+      # @todo This method should be considered 'work in progress'. We already know we need to change this.
+      # @return [void]
       def create_referenced_by_models_of(model)
         mapper.referenced_by_models.each do |ref_model_name|
           ref_collection = mapper.collection_for ref_model_name
