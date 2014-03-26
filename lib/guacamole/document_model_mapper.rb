@@ -39,7 +39,7 @@ module Guacamole
     # @return [Model] the resulting model with the given Model class
     def document_to_model(document)
       identity_map.retrieve_or_store model_class, document.key do
-        model = model_class.new(document.hash)
+        model = model_class.new(document.to_h)
 
         model.key = document.key
         model.rev = document.revision
