@@ -39,8 +39,13 @@ module Guacamole
     end
 
     # TODO: not yet tested and more or less a stub
+    class << self
+      def collection_for(model_name)
+        "#{model_name.to_s.pluralize}Collection".camelcase.constantize
+      end
+    end
     def collection_for(model_name)
-      "#{model_name.to_s.pluralize}Collection".camelcase.constantize
+      self.class.collection_for model_name
     end
 
     # Map a document to a model
