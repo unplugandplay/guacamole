@@ -12,10 +12,10 @@ module Guacamole
     #
     #  * {Guacamole::Proxies::ReferencedBy}: This will handle one-to-many associations
     #  * {Guacamole::Proxies::References}: This will handle many-to-one associations
-    class Proxy
-      # We undefine most methods to get them sent through to the target.
+    class Proxy < BasicObject
+      # Despite using BasicObject we still need to remove some method to get a near transparent proxy
       instance_methods.each do |method|
-        undef_method(method) unless method =~ /(^__|^send|^object_id|^respond_to|^tap)/
+        undef_method(method) unless method =~ /^__/
       end
 
       # Convenience method to setup the proxy. The subclasses need to care of creating
@@ -28,10 +28,12 @@ module Guacamole
         @target = target
       end
 
-      protected
-
       def method_missing(meth, *args, &blk)
         @target.call.send meth, *args, &blk
+      end
+
+      def respond_to_missing?(name, include_private = false)
+        @target.respond_to?(name, include_private)
       end
     end
   end

@@ -4,7 +4,8 @@ Attribute:
   exclude: []
 BooleanParameter:
   enabled: true
-  exclude: []
+  exclude:
+  - respond_to_missing?
 ClassVariable:
   enabled: true
   exclude: []
