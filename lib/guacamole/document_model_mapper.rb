@@ -54,6 +54,7 @@ module Guacamole
     #
     # @param [Ashikawa::Core::Document] document
     # @return [Model] the resulting model with the given Model class
+    # rubocop:disable MethodLength
     def document_to_model(document)
       identity_map.retrieve_or_store model_class, document.key do
         model = model_class.new(document.to_h)
@@ -72,6 +73,7 @@ module Guacamole
         model
       end
     end
+    # rubocop:enable MethodLength
 
     # Map a model to a document
     #
@@ -79,6 +81,7 @@ module Guacamole
     #
     # @param [Model] model
     # @return [Ashikawa::Core::Document] the resulting document
+    # rubocop:disable MethodLength
     def model_to_document(model)
       document = model.attributes.dup.except(:key, :rev)
       models_to_embed.each do |attribute_name|
@@ -100,6 +103,7 @@ module Guacamole
 
       document
     end
+    # rubocop:enable MethodLength
 
     # Declare a model to be embedded
     #
