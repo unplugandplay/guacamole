@@ -137,4 +137,25 @@ describe Guacamole::Query do
       end
     end
   end
+
+  describe '==' do
+    subject { Guacamole::Query }
+
+    let(:one_query)     { subject.new(double('Connection'), double('Mapper')) }
+    let(:another_query) { subject.new(double('Connection'), double('Mapper')) }
+
+    it 'should be equal if the example it equal' do
+      one_query.example = { this: 23 }
+      another_query.example = { this: 23 }
+
+      expect(one_query).to eq another_query
+    end
+
+    it 'should not be equal if the examples differ' do
+      one_query.example = { this: 23 }
+      another_query.example = { that: 42 }
+
+      expect(one_query).not_to eq another_query
+    end
+  end
 end

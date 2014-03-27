@@ -68,5 +68,16 @@ module Guacamole
       options[:skip] = skip
       self
     end
+
+    # Is this {Query} equal to another {Query}
+    #
+    # Two {Query} objects are equal if their examples are equal
+    #
+    # @param [Query] other The query to compare to
+    def ==(other)
+      other.instance_of?(self.class) &&
+        example == other.example
+    end
+    alias_method :eql?, :==
   end
 end

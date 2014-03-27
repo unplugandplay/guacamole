@@ -117,6 +117,8 @@ describe Guacamole::Collection do
 
     before do
       allow(mapper).to receive(:model_to_document).with(model).and_return(document)
+      allow(mapper).to receive(:referenced_by_models).and_return([])
+      allow(mapper).to receive(:referenced_models).and_return([])
     end
 
     let(:key)       { double('Key') }
@@ -205,7 +207,7 @@ describe Guacamole::Collection do
         end
 
         it 'should not update created_at' do
-          expect(model).to receive(:created_at=).never
+          expect(model).not_to receive(:created_at=)
 
           subject.save model
         end
@@ -226,16 +228,16 @@ describe Guacamole::Collection do
         end
 
         it 'should not be used to create the document' do
-          expect(connection).to receive(:create_document).never
+          expect(connection).not_to receive(:create_document)
 
           subject.save model
         end
 
         it 'should not be changed' do
-          expect(model).to receive(:created_at=).never
-          expect(model).to receive(:updated_at=).never
-          expect(model).to receive(:key=).never
-          expect(model).to receive(:rev=).never
+          expect(model).not_to receive(:created_at=)
+          expect(model).not_to receive(:updated_at=)
+          expect(model).not_to receive(:key=)
+          expect(model).not_to receive(:rev=)
 
           subject.save model
         end
@@ -255,14 +257,14 @@ describe Guacamole::Collection do
         let(:model)    { double('Model', key: key).as_null_object }
 
         it 'should not be used to replace the document' do
-          expect(connection).to receive(:replace).never
+          expect(connection).not_to receive(:replace)
 
           subject.save model
         end
 
         it 'should not be changed' do
-          expect(model).to receive(:rev=).never
-          expect(model).to receive(:updated_at=).never
+          expect(model).not_to receive(:rev=)
+          expect(model).not_to receive(:updated_at=)
 
           subject.save model
         end
@@ -279,6 +281,8 @@ describe Guacamole::Collection do
     before do
       allow(connection).to receive(:create_document).with(document).and_return(document)
       allow(mapper).to receive(:model_to_document).with(model).and_return(document)
+      allow(mapper).to receive(:referenced_by_models).and_return([])
+      allow(mapper).to receive(:referenced_models).and_return([])
     end
 
     let(:key)       { double('Key') }
@@ -326,6 +330,88 @@ describe Guacamole::Collection do
 
         subject.create model
       end
+
+      context 'with referenced model' do
+        let(:referenced_model)                { double('ReferencedModel') }
+        let(:referenced_model_name)           { :some_referenced_model }
+        let(:referenced_models)               { [referenced_model_name] }
+        let(:collection_for_referenced_model) { double('Collection') }
+
+        before do
+          allow(referenced_model).to receive(:persisted?).and_return(false)
+          allow(mapper).to receive(:collection_for)
+            .with(referenced_model_name)
+            .and_return(collection_for_referenced_model)
+          allow(mapper).to receive(:referenced_models).and_return(referenced_models)
+          allow(model).to receive(:send).with(referenced_model_name).and_return(referenced_model)
+          allow(collection_for_referenced_model).to receive(:save).with(referenced_model)
+        end
+
+        it 'should save each referenced model' do
+          expect(collection_for_referenced_model).to receive(:save).with(referenced_model)
+
+          subject.create model
+        end
+
+        it 'should save the reference only if it is not already persisted' do
+          allow(referenced_model).to receive(:persisted?).and_return(true)
+          expect(collection_for_referenced_model).not_to receive(:save).with(referenced_model)
+
+          subject.create model
+        end
+
+        it 'should save the reference only if it is present' do
+          allow(model).to receive(:send).with(:some_referenced_model).and_return(nil)
+          expect(collection_for_referenced_model).not_to receive(:save).with(referenced_model)
+
+          subject.create model
+        end
+      end
+
+      context 'with referenced_by model' do
+        let(:referenced_by_model)                { double('ReferencedByModel') }
+        let(:referenced_by_model_name)           { :some_referenced_by_model }
+        let(:referenced_by_models)               { [referenced_by_model_name] }
+        let(:collection_for_referenced_by_model) { double('Collection') }
+
+        before do
+          allow(referenced_by_model).to receive(:persisted?).and_return(false)
+          allow(referenced_by_model).to receive("#{model.class.name.demodulize.underscore}=").with(model)
+          allow(mapper).to receive(:collection_for)
+            .with(referenced_by_model_name)
+            .and_return(collection_for_referenced_by_model)
+          allow(mapper).to receive(:referenced_by_models).and_return(referenced_by_models)
+          allow(model).to receive(:send).with(referenced_by_model_name).and_return([referenced_by_model])
+          allow(collection_for_referenced_by_model).to receive(:save).with(referenced_by_model)
+        end
+
+        it 'should save the references' do
+          expect(collection_for_referenced_by_model).to receive(:save).with(referenced_by_model)
+
+          subject.create model
+        end
+
+        it 'should save the references only if it is not already persisted' do
+          allow(referenced_by_model).to receive(:persisted?).and_return(true)
+          expect(collection_for_referenced_by_model).not_to receive(:save).with(referenced_by_model)
+
+          subject.create model
+        end
+
+        it 'should save the references only if it is present' do
+          allow(model).to receive(:send).with(referenced_by_model_name).and_return([])
+          expect(collection_for_referenced_by_model).not_to receive(:save).with(referenced_by_model)
+
+          subject.create model
+        end
+
+        it 'should ensure the references have the parent model assigned prior saving' do
+          expect(referenced_by_model).to receive("#{model.class.name.demodulize.underscore}=").with(model).ordered
+          expect(collection_for_referenced_by_model).to receive(:save).with(referenced_by_model).ordered
+
+          subject.create model
+        end
+      end
     end
 
     context 'an invalid model' do
@@ -335,16 +421,16 @@ describe Guacamole::Collection do
       end
 
       it 'should not be used to create the document' do
-        expect(connection).to receive(:create_document).never
+        expect(connection).not_to receive(:create_document)
 
         subject.create model
       end
 
       it 'should not be changed' do
-        expect(model).to receive(:created_at=).never
-        expect(model).to receive(:updated_at=).never
-        expect(model).to receive(:key=).never
-        expect(model).to receive(:rev=).never
+        expect(model).not_to receive(:created_at=)
+        expect(model).not_to receive(:updated_at=)
+        expect(model).not_to receive(:key=)
+        expect(model).not_to receive(:rev=)
 
         subject.create model
       end
@@ -435,7 +521,7 @@ describe Guacamole::Collection do
       end
 
       it 'should not update created_at' do
-        expect(model).to receive(:created_at=).never
+        expect(model).not_to receive(:created_at=)
 
         subject.replace model
       end
@@ -447,14 +533,14 @@ describe Guacamole::Collection do
       end
 
       it 'should not be used to replace the document' do
-        expect(connection).to receive(:replace).never
+        expect(connection).not_to receive(:replace)
 
         subject.replace model
       end
 
       it 'should not be changed' do
-        expect(model).to receive(:rev=).never
-        expect(model).to receive(:updated_at=).never
+        expect(model).not_to receive(:rev=)
+        expect(model).not_to receive(:updated_at=)
 
         subject.replace model
       end
