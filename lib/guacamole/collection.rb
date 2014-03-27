@@ -323,7 +323,7 @@ module Guacamole
 
           ref_models = model.send(ref_model_name)
 
-          ref_models.each do |ref_model|
+          ref_models.to_a.each do |ref_model|
             ref_model.send("#{model.class.name.demodulize.underscore}=", model)
             ref_collection.save ref_model unless ref_model.persisted?
           end

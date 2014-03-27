@@ -84,7 +84,7 @@ module Guacamole
         end
 
         referenced_models.each do |ref_model_name|
-          model.send("#{ref_model_name}=", Proxies::References.new(ref_model_name, document))
+          model.send("#{ref_model_name}=", Proxies::References.new(ref_model_name, document)) if document["#{ref_model_name}_id"].present?
         end
 
         model.key = document.key
