@@ -304,7 +304,7 @@ module Guacamole
           ref_collection = mapper.collection_for(ref_model_name)
 
           ref_model = model.send(ref_model_name)
-          next unless ref_model
+          next if ref_model.blank?
 
           ref_collection.save ref_model unless ref_model.persisted?
         end
