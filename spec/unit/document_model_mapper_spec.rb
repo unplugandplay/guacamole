@@ -33,7 +33,7 @@ describe Guacamole::DocumentModelMapper do
 
     before do
       allow(subject.model_class).to receive(:new).and_return(model_instance)
-      allow(document).to receive(:hash).and_return(document_attributes)
+      allow(document).to receive(:to_h).and_return(document_attributes)
       allow(document).to receive(:key).and_return(some_key)
       allow(document).to receive(:revision).and_return(some_rev)
     end
